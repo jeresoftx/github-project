@@ -1,0 +1,106 @@
+use dotenv::dotenv;
+use reqwest::header::{HeaderMap, AUTHORIZATION, USER_AGENT};
+use serde_json::json;
+use std::env;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
+    let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN is not set");
+    let organization = "somossoftrek";
+    let project_number = 82; // Cambia esto por el número de tu proyecto
+
+    let graphql_query = json!({
+        "query": "
+            query($org: String!, $project: Int!) {
+                organization(login: $org) {
+                    projectV2(number: $project) {
+                        items(first: 3) {
+                            pageInfo {
+                                endCursor
+                                hasNextPage
+                            }
+                            nodes {
+                                content {
+                                    ... on Issue {
+                                        id
+                                        number
+                                        title
+                                        state
+                                        url
+                                        state
+                                        createdAt
+                                        updatedAt
+                                        closedAt
+                                        labels(first: 10) {
+                                            nodes {
+                                                id
+                                                name
+                                            }
+                                        }
+                                        assignees(first: 5) {
+                                            nodes {
+                                                id
+                                                login
+                                                url
+                                            }
+                                        }
+                                        projectItems(first: 10) {
+                                            nodes {
+                                                fieldValues(first: 10) {
+                                                    nodes {
+                                                        ... on ProjectV2ItemFieldValueCommon {
+                                                            field {
+                                                            ... on ProjectV2FieldCommon {
+                                                                id
+                                                                name
+                                                            }
+                                                            }
+                                                        }
+                                                        ... on ProjectV2ItemFieldTextValue {
+                                                            text
+                                                        }
+                                                        ... on ProjectV2ItemFieldSingleSelectValue {
+                                                            name
+                                                        }
+                                                        ... on ProjectV2ItemFieldNumberValue {
+                                                            number
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        ",
+        "variables": {
+            "org": organization,
+            "project": project_number
+        }
+    });
+
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        AUTHORIZATION,
+        format!("Bearer {}", github_token).parse().unwrap(),
+    );
+    headers.insert(USER_AGENT, "Rust GitHub Client".parse().unwrap());
+
+    let client = reqwest::Client::new();
+    let response = client
+        .post("https://api.github.com/graphql")
+        .headers(headers)
+        .json(&graphql_query)
+        .send()
+        .await?;
+
+    let response_text = response.text().await?;
+    println!("{}", response_text);
+
+    Ok(())
+}

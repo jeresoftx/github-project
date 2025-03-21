@@ -1,0 +1,151 @@
+{
+  "data": {
+    "organization": {
+      "projectV2": {
+        "items": {
+          "pageInfo": {
+            "endCursor": "Y3Vyc29yOnYyOpKqMDAwMDAwMTEuMM4GFQvE",
+            "hasNextPage": true
+          },
+          "nodes": [
+            {
+              "content": {
+                "id": "I_kwDON4rmos6t4CQ0",
+                "url": "https://github.com/somossoftrek/v3.mapeo.backend/issues/74",
+                "title": "doc(mapeo): planeación app mapeo",
+                "state": "CLOSED",
+                "createdAt": "2025-03-13T13:22:46Z",
+                "updatedAt": "2025-03-14T20:44:30Z",
+                "closedAt": "2025-03-14T20:44:30Z",
+                "labels": {
+                  "nodes": [
+                    {
+                      "id": "LA_kwDON4rmos8AAAAB7mX2SA",
+                      "name": "admin",
+                      "color": "bfd4f2"
+                    }
+                  ]
+                },
+                "assignees": {
+                  "nodes": [
+                    {
+                      "id": "U_kgDOCFVzUg",
+                      "login": "jeresoftx",
+                      "url": "https://github.com/jeresoftx"
+                    }
+                  ]
+                },
+                "projectItems": {
+                  "nodes": [
+                    {
+                      "fieldValues": {
+                        "nodes": [
+                          {},
+                          {},
+                          {},
+                          {},
+                          {
+                            "field": {
+                              "id": "PVTF_lADOCTNXo84A0O-Zzgp5hzc",
+                              "name": "Title"
+                            },
+                            "text": "doc(mapeo): planeación app mapeo"
+                          },
+                          {
+                            "field": {
+                              "id": "PVTSSF_lADOCTNXo84A0O-Zzgp5hzk",
+                              "name": "Status"
+                            },
+                            "name": "Done"
+                          },
+                          {
+                            "field": {
+                              "id": "PVTF_lADOCTNXo84A0O-Zzgp5h1I",
+                              "name": "Estimate"
+                            },
+                            "number": 8.0
+                          },
+                          {
+                            "field": {
+                              "id": "PVTF_lADOCTNXo84A0O-Zzgp5h1Y",
+                              "name": "Horas"
+                            },
+                            "number": 8.0
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "content": {
+                "id": "I_kwDON7u-E86uG5js",
+                "url": "https://github.com/somossoftrek/mapeo.v3.softrek.mx/issues/154",
+                "title": "doc(familia tarifaria): Pantallas CRUD familia tarifaria",
+                "state": "OPEN",
+                "createdAt": "2025-03-14T18:49:31Z",
+                "updatedAt": "2025-03-14T19:44:41Z",
+                "closedAt": null,
+                "labels": {
+                  "nodes": [
+                    {
+                      "id": "LA_kwDON7u-E88AAAAB7gd0gw",
+                      "name": "UI/UX designer",
+                      "color": "f9d0c4"
+                    }
+                  ]
+                },
+                "assignees": {
+                  "nodes": [
+                    {
+                      "id": "U_kgDOCmpdSQ",
+                      "login": "eduardograniel",
+                      "url": "https://github.com/eduardograniel"
+                    }
+                  ]
+                },
+                "projectItems": {
+                  "nodes": [
+                    {
+                      "fieldValues": {
+                        "nodes": [
+                          {},
+                          {},
+                          {},
+                          {},
+                          {
+                            "field": {
+                              "id": "PVTF_lADOCTNXo84A0O-Zzgp5hzc",
+                              "name": "Title"
+                            },
+                            "text": "doc(familia tarifaria): Pantallas CRUD familia tarifaria"
+                          },
+                          {
+                            "field": {
+                              "id": "PVTSSF_lADOCTNXo84A0O-Zzgp5hzk",
+                              "name": "Status"
+                            },
+                            "name": "Backlog"
+                          },
+                          {
+                            "field": {
+                              "id": "PVTF_lADOCTNXo84A0O-Zzgp5h1I",
+                              "name": "Estimate"
+                            },
+                            "number": 4.0
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

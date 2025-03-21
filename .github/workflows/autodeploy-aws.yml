@@ -1,0 +1,43 @@
+name: Autodeploy to AWS
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: "Where to release (stage or prod)?"
+        required: true
+        default: "stage"
+  push:
+    branches:
+      - stage
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+     
+      - name: Configure Git authentication
+        run: |
+          git config --global url."https://${{ secrets.MY_RELEASE_PLEASE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install dependencies
+        run: cargo build --release
+
+      - name: Deploy to AWS
+        run: ./deploy.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
