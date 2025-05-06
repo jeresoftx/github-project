@@ -1,7 +1,8 @@
 use crate::infrastructure::github::models::{GithubIssue, GithubUser};
-use chrono::{DateTime, Utc};
+use bson::DateTime;
 use mongodb::bson::oid::ObjectId; // Added import for ObjectId
 use serde::{Deserialize, Serialize};
+use utils::string_to_bson_datetime::string_to_bson_datetime;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -26,10 +27,10 @@ pub struct IssueModel {
     end_date: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     assigned: Option<UserModel>,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
+    created_at: DateTime,
+    updated_at: DateTime,
     #[serde(skip_serializing_if = "Option::is_none")]
-    closed_at: Option<DateTime<Utc>>,
+    closed_at: Option<DateTime>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,18 +53,22 @@ impl From<GithubUser> for UserModel {
 impl IssueModel {
     pub fn from_issue(issue: GithubIssue, snapshot_id: ObjectId) -> Self {
         // Get the first label if available
-        let label = if !issue.labels.nodes.is_empty() {
-            Some(issue.labels.nodes[0].name.clone())
-        } else {
-            None
-        };
+        let label = issue.labels.as_ref().and_then(|labels| {
+            if !labels.nodes.is_empty() {
+                Some(labels.nodes[0].name.clone())
+            } else {
+                None
+            }
+        });
 
         // Get the first assignee if available
-        let assigned = if !issue.assignees.nodes.is_empty() {
-            Some(issue.assignees.nodes[0].clone().into())
-        } else {
-            None
-        };
+        let assigned = issue.assignees.as_ref().and_then(|assignees| {
+            if !assignees.nodes.is_empty() {
+                Some(assignees.nodes[0].clone().into())
+            } else {
+                None
+            }
+        });
 
         // Default values for optional fields
         let mut estimate: Option<f64> = None;
@@ -72,8 +77,12 @@ impl IssueModel {
         let mut end_date: Option<String> = None;
         let mut hours: Option<f64> = None;
 
+        let nodes = issue
+            .project_items
+            .as_ref()
+            .map_or(vec![], |project_items| project_items.nodes.clone());
         // Extract custom field values from project_items
-        for node in issue.project_items.nodes {
+        for node in nodes {
             for field_value in node.field_values.nodes {
                 if let Some(field) = field_value.field {
                     if field.name.is_empty() {
@@ -85,6 +94,7 @@ impl IssueModel {
                         "Start Date" => start_date = field_value.text,
                         "End Date" => end_date = field_value.text,
                         "Hours" => hours = field_value.number,
+                        "Horas" => hours = field_value.number,
                         _ => {}
                     }
                 }
@@ -94,10 +104,10 @@ impl IssueModel {
         IssueModel {
             id: ObjectId::new(), // Generate a new ObjectId
             snapshot_id,         // Use the provided snapshot_id
-            github_issue_id: issue.id,
-            url: issue.url,
-            title: issue.title,
-            state: issue.state,
+            github_issue_id: issue.id.unwrap_or_default(),
+            url: issue.url.unwrap_or_default(),
+            title: issue.title.unwrap_or_default(),
+            state: issue.state.unwrap_or_default(),
             state_reason: issue.state_reason,
             label,
             estimate,
@@ -106,17 +116,9 @@ impl IssueModel {
             end_date,
             hours,
             assigned,
-            created_at: DateTime::parse_from_rfc3339(&issue.created_at)
-                .unwrap()
-                .with_timezone(&Utc),
-            updated_at: DateTime::parse_from_rfc3339(&issue.updated_at)
-                .unwrap()
-                .with_timezone(&Utc),
-            closed_at: issue.closed_at.as_ref().map(|date| {
-                DateTime::parse_from_rfc3339(date)
-                    .unwrap()
-                    .with_timezone(&Utc)
-            }),
+            created_at: string_to_bson_datetime(issue.created_at),
+            updated_at: string_to_bson_datetime(issue.updated_at),
+            closed_at: string_to_bson_datetime(issue.closed_at),
         }
     }
 }

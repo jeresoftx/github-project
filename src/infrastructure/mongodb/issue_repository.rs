@@ -36,7 +36,6 @@ impl IssueRepository {
             .values()
             .map(|id| id.as_object_id().unwrap().to_hex())
             .collect();
-
         Ok(ids)
     }
 
@@ -52,11 +51,15 @@ impl IssueRepository {
                 .github_repository
                 .get_issues(project_number, Some(limit), Some(after))
                 .await?;
-
+            // Check if issues_page is empty and break the loop
+            if issues_page.is_empty() {
+                println!("No more issues found for project #{}", project_number);
+                break;
+            }
             // Convert GitHub issues to IssueModel and batch insert them
             let issue_models: Vec<IssueModel> = issues_page
                 .into_iter()
-                .map(|issue| IssueModel::from_issue(issue.content, self.snapshot_id.clone()))
+                .map(|issue| IssueModel::from_issue(issue, self.snapshot_id))
                 .collect();
 
             if !issue_models.is_empty() {

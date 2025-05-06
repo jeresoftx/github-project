@@ -1,4 +1,4 @@
-use super::models::{GithubContent, GithubPageInfo, GithubProjectV2, GithubResponse};
+use super::models::{GithubIssue, GithubPageInfo, GithubProjectV2, GithubResponse};
 use reqwest::Client;
 use serde::Serialize;
 use std::error::Error;
@@ -56,7 +56,8 @@ impl GitHubRepository {
         project_number: i32,
         limit: Option<i32>,
         after: Option<String>,
-    ) -> Result<(Vec<GithubContent>, GithubPageInfo), Box<dyn Error>> {
+    ) -> Result<(Vec<GithubIssue>, GithubPageInfo), Box<dyn Error>> {
+        println!("project_number: {}", project_number);
         let variables = serde_json::json!({
             "organization": self.organization,
             "projectNumber": project_number,
@@ -64,18 +65,19 @@ impl GitHubRepository {
             "after": after
         });
 
-        let response = self.execute_query(QUERY_ISSUES, variables).await?;
-        let items = response
-            .data
-            .organization
-            .project_v2
-            .items
-            .ok_or("No items found")?;
+        let response = match self.execute_query(QUERY_ISSUES, variables).await {
+            Ok(response) => response,
+            Err(e) => {
+                println!("Error graphql github: {:?}", e);
+                return Err(e);
+            }
+        };
 
-        let issues = items.nodes;
+        let issues = response.get_issues();
+        let page_info = response.get_page_info();
         println!("Número de issues obtenidos {}", issues.len());
 
-        Ok((issues, items.page_info))
+        Ok((issues, page_info))
     }
 
     /// Execute a GraphQL query against the GitHub API

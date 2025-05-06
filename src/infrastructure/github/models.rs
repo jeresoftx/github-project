@@ -3,16 +3,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GithubIssue {
-    pub id: String,
-    pub url: String,
-    pub title: String,
-    pub state: String,
+    pub id: Option<String>,
+    pub url: Option<String>,
+    pub title: Option<String>,
+    pub state: Option<String>,
     pub state_reason: Option<String>,
-    pub labels: GithubLabels,
-    pub assignees: GithubAssignees,
-    pub project_items: GithubProjectItem,
-    pub created_at: String,
-    pub updated_at: String,
+    pub labels: Option<GithubLabels>,
+    pub assignees: Option<GithubAssignees>,
+    pub project_items: Option<GithubProjectItem>,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
     pub closed_at: Option<String>,
 }
 
@@ -81,7 +81,7 @@ pub struct GithubPageInfo {
 #[derive(Deserialize, Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GithubContent {
-    pub content: GithubIssue,
+    pub content: Option<GithubIssue>,
 }
 
 #[derive(Deserialize, Debug, Serialize, Clone)]
@@ -120,4 +120,34 @@ pub struct GithubData {
 #[serde(rename_all = "camelCase")]
 pub struct GithubResponse {
     pub data: GithubData,
+}
+
+impl GithubResponse {
+    pub fn get_issues(&self) -> Vec<GithubIssue> {
+        let mut issues = Vec::new();
+        if let Some(items) = &self.data.organization.project_v2.items {
+            for item in &items.nodes {
+                if let Some(issue) = &item.content {
+                    if let Some(issue_id) = &issue.id {
+                        if issue_id.is_empty() {
+                            continue;
+                        }
+                        issues.push(issue.clone());
+                    }
+                }
+            }
+        }
+        issues
+    }
+
+    pub fn get_page_info(&self) -> GithubPageInfo {
+        let new = GithubPageInfo {
+            end_cursor: None,
+            has_next_page: false,
+        };
+        if let Some(items) = &self.data.organization.project_v2.items {
+            return items.page_info.clone();
+        }
+        new
+    }
 }

@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use bson::DateTime;
 use mongodb::bson::oid::ObjectId; // Added import for ObjectId
 use serde::{Deserialize, Serialize};
 
@@ -10,16 +10,15 @@ pub struct SnapshotModel {
     pub project_number: i32,
     pub project_id: ObjectId,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
+    pub created_at: Option<DateTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_at: Option<DateTime>,
 }
 impl SnapshotModel {
     pub fn new(project_number: i32, project_id: ObjectId) -> Self {
-        let now = Utc::now();
-
+        let now = DateTime::now();
         Self {
             id: ObjectId::new(),
             project_id,

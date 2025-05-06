@@ -41,6 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // leer issues
     let issue_repository =
         issue_repository::IssueRepository::new(&database, github_repository, snapshot.id.clone());
+
     issue_repository
         .insert_from_github_project(env.github_project_number)
         .await?;

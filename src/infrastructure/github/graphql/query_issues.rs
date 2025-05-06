@@ -40,7 +40,7 @@ query($organization: String!, $projectNumber: Int!, $after: String, $limit: Int)
               }
               projectItems(first: 10) {
                 nodes {
-                  fieldValues(first: 10) {
+                  fieldValues(first: 20) {
                     nodes {
                       ... on ProjectV2ItemFieldValueCommon {
                         field {
